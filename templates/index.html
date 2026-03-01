@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petal - METAF</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div id="screen-1" class="screen active-screen">
+        <h1 class="welcome-text">Hi, I'm Petal.</h1>
+        <p class="subtitle">Click the daisy to begin.</p>
+        <div id="daisy-mascot" onclick="startTransition()">🌼</div>
+    </div>
+
+    <div id="screen-2" class="screen hidden-screen">
+        <div id="transition-daisy">🌼</div>
+    </div>
+
+    <div id="screen-3" class="screen hidden-screen">
+        <div class="app-container">
+            
+            <div class="chat-wrapper">
+           <div class="chat-header" style="display: flex; justify-content: space-between; align-items: center;">
+    <span>Chat with Petal</span>
+    
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <span style="background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 15px; font-size: 14px; font-weight: bold;">
+             {{ streak }} Day Streak
+        </span>
+        
+        <a href="/logout" style="color: white; text-decoration: none; font-size: 14px; background: rgba(0,0,0,0.2); padding: 5px 12px; border-radius: 15px;">Logout</a>
+    </div>
+</div>
+<div id="chat-window" class="chat-window">
+                    <div class="message bot">{{ bot_greeting }}</div>
+                </div>
+
+                <div class="chat-input-area">
+                    <input type="text" id="user-input" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+                
+            </div> 
+
+            <div class="mood-dashboard">
+                <h3>Live Mood Analysis</h3>
+                <div class="dashboard-item">
+                    <strong>Current Mood:</strong>
+                    <span id="ui-mood">Analyzing...</span>
+                </div>
+                <div class="dashboard-item">
+                    <strong>Sentiment Score:</strong>
+                    <span id="ui-score">0.0</span>
+                </div>
+                <div class="dashboard-item">
+                    <strong>Risk Level:</strong>
+                    <span id="ui-risk" class="risk-safe">Safe</span>
+                </div>
+                <div class="dashboard-item suggestion-box">
+                    <strong>AI Suggestion:</strong>
+                    <p id="ui-suggestion">Start chatting to receive suggestions.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div id="breathing-overlay" class="interactive-overlay" style="display: none;">
+        <h2 style="color: #4a148c; font-size: 30px; z-index: 10;">4-7-8 Breathing Exercise</h2>
+        
+        <div style="height: 350px; display: flex; align-items: center; justify-content: center;">
+            <div id="breath-circle" class="breathing-circle"></div>
+        </div>
+        
+        <h3 id="breath-text" style="font-size: 28px; color: #4a148c; font-weight: bold; margin-top: 10px; z-index: 10;">Get Ready...</h3>
+        
+        <button onclick="stopBreathing()" class="overlay-btn" style="margin-top: 30px; z-index: 10;">I'm done</button>
+    </div>
+    <div id="zen-game-overlay" class="interactive-overlay" style="display: none;">
+        <h2 style="color: #4a148c;">Pop the Stress Bubbles</h2>
+        <p style="color: #555;">Take a moment. Pop as many as you need.</p>
+        <div id="bubble-container" class="bubble-grid"></div>
+        <button onclick="closeZenGame()" class="overlay-btn" style="margin-top: 30px;">Return to Chat</button>
+    </div>
+
+   <script>
+        function startTransition() {
+            document.getElementById('screen-1').classList.remove('active-screen');
+            document.getElementById('screen-1').classList.add('hidden-screen');
+
+            let screen2 = document.getElementById('screen-2');
+            screen2.classList.remove('hidden-screen');
+            screen2.classList.add('active-screen');
+
+            setTimeout(() => {
+                document.getElementById('transition-daisy').classList.add('massive-zoom');
+            }, 50);
+
+            setTimeout(() => {
+                screen2.classList.remove('active-screen');
+                screen2.classList.add('hidden-screen');
+                
+                let screen3 = document.getElementById('screen-3');
+                screen3.classList.remove('hidden-screen');
+                screen3.classList.add('active-screen');
+            }, 1800); 
+        }
+
+        function handleKeyPress(e) {
+            if(e.key === 'Enter') sendMessage();
+        }
+
+        function sendMessage() {
+            let inputField = document.getElementById("user-input");
+            let message = inputField.value.trim();
+            if (message === "") return;
+
+            appendMessage("user", message);
+            inputField.value = "";
+
+            fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                appendMessage("bot", data.reply);
+                updateMoodDashboard(data); 
+            })
+            .catch(error => {
+                appendMessage("bot", "Sorry, I'm having trouble connecting to my brain.");
+                console.error("Chat Error:", error);
+            });
+        }
+
+        function appendMessage(sender, text) {
+            let chatWindow = document.getElementById("chat-window");
+            let msgDiv = document.createElement("div");
+            msgDiv.className = "message " + sender;
+            msgDiv.innerHTML = text;
+            chatWindow.appendChild(msgDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        function updateMoodDashboard(data) {
+            document.getElementById("ui-mood").innerText = data.mood;
+            document.getElementById("ui-score").innerText = data.score;
+            
+            let suggestionHtml = data.suggestion;
+            if (data.risk_level === "Moderate" || data.risk_level === "High" || data.risk_level === "CRITICAL") {
+                suggestionHtml += `<br><button class="game-trigger-btn" onclick="startZenGame()">🎮 Play Calm Mini-Game</button>`;
+            }
+            document.getElementById("ui-suggestion").innerHTML = suggestionHtml;
+            
+            let riskSpan = document.getElementById("ui-risk");
+            riskSpan.innerText = data.risk_level;
+            
+            if(data.risk_level === "High" || data.risk_level === "CRITICAL") {
+                riskSpan.style.color = "#d32f2f"; riskSpan.style.fontWeight = "bold";
+            } else if (data.risk_level === "Moderate") {
+                riskSpan.style.color = "#f57c00";
+            } else {
+                riskSpan.style.color = "#388e3c";
+            }
+
+            // --- THE BREATHING TRIGGER ---
+            console.log("Intent received from Python:", data.intent_to_save); // Helps us debug!
+            if (data.intent_to_save === "breathing_exercise") {
+                setTimeout(startBreathing, 2000); 
+            }
+        }
+
+        // --- 4-7-8 BREATHING LOGIC ---
+        let breathInterval;
+
+        function startBreathing() {
+            document.getElementById("breathing-overlay").style.display = "flex";
+            let text = document.getElementById("breath-text");
+            let circle = document.getElementById("breath-circle");
+
+            function breatheCycle() {
+                text.innerText = "Breathe In... (4s)";
+                circle.style.transition = "transform 4s linear";
+                circle.style.transform = "scale(2)";
+
+                setTimeout(() => {
+                    text.innerText = "Hold... (7s)";
+                    setTimeout(() => {
+                        text.innerText = "Breathe Out... (8s)";
+                        circle.style.transition = "transform 8s linear";
+                        circle.style.transform = "scale(1)";
+                    }, 7000); 
+                }, 4000); 
+            }
+
+            breatheCycle(); 
+            breathInterval = setInterval(breatheCycle, 19000); 
+        }
+
+        function stopBreathing() {
+            document.getElementById("breathing-overlay").style.display = "none";
+            clearInterval(breathInterval);
+        }
+
+        // --- ZEN BUBBLE GAME LOGIC ---
+        function startZenGame() {
+            document.getElementById("zen-game-overlay").style.display = "flex";
+            let container = document.getElementById("bubble-container");
+            container.innerHTML = ""; 
+
+            for(let i=0; i<20; i++) {
+                let bubble = document.createElement("div");
+                bubble.className = "zen-bubble";
+                bubble.onclick = function() {
+                    this.classList.add("popped"); 
+                };
+                container.appendChild(bubble);
+            }
+        }
+
+        function closeZenGame() {
+            document.getElementById("zen-game-overlay").style.display = "none";
+        }
+    </script>
+</body>
+</html>

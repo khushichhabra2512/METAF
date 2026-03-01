@@ -1,0 +1,42 @@
+{"intents": [
+    {"tag": "greeting",
+     "patterns": ["Hi", "Hello", "Is anyone there?", "Hey", "Good morning"],
+     "responses": ["Hello. I'm here to listen. How are you feeling today?", "Hi there. You can talk to me about whatever is on your mind."]
+    },
+    {"tag": "stress",
+     "patterns": ["I am so stressed", "Work is overwhelming", "I have too much to do", "I feel pressured", "I can't handle this stress"],
+     "responses": ["It sounds like you have a lot on your plate right now. Let's take it one step at a time. Do you want to try a quick breathing exercise?", "Stress can be exhausting. Remember to give yourself some grace. What is the biggest thing on your mind right now?"]
+    },
+    {"tag": "anxiety",
+     "patterns": ["I feel anxious", "My chest is tight", "I'm worried about the future", "I can't stop overthinking", "I have anxiety"],
+     "responses": ["Anxiety can feel really scary, but you are safe right now. Let's try to ground ourselves. Can you look around and name 3 things you can see?", "I hear you. It's okay to feel anxious. Take a slow, deep breath in... and out. I'm here with you."]
+    },
+    {"tag": "depression",
+     "patterns": ["I feel sad", "I'm so lonely", "I feel empty", "Nothing matters anymore", "I'm crying", "I feel down"],
+     "responses": [" to bhai kya hua", "Feeling empty is really hard. You don't have to go through it alone. Would you like to talk about what triggered this?"]
+    },
+    {"tag": "coping_mechanisms",
+     "patterns": ["How do I calm down?", "Help me relax", "I need a distraction", "What should I do?", "Give me advice"],
+     "responses": ["Let's try the 4-7-8 breathing technique: Breathe in for 4 seconds, hold for 7, and exhale for 8. Let's do it together.", "Sometimes a change of environment helps. Can you drink a glass of cold water or step outside for a minute?", "Try writing down three things you are grateful for today. It can help shift your focus slightly."]
+    },
+    {"tag": "emergency_self_harm",
+     "patterns": ["I want to die", "I want to hurt myself", "I can't live anymore", "end it all", "suicide"],
+     "responses": ["I am deeply concerned about you. You are not alone, and there is help available right now. Please immediately call the Kiran Helpline at 1800-599-0019, or the AASRA suicide prevention hotline at +91-9820466726. People there care and want to support you."]
+    },
+    {"tag": "affirmative",
+     "patterns": ["yes", "yeah", "sure", "okay", "ok", "yep", "alright", "i would like that", "please", "do it"],
+     "responses": [
+         "Got it.", 
+         "Alright.", 
+         "Okay!"
+     ]
+    },
+    {"tag": "negative",
+     "patterns": ["no", "nope", "nah", "not right now", "no thanks", "nevermind", "i don't want to", "stop"],
+     "responses": [
+         "That is completely okay. There is no pressure here.", 
+         "I understand. We don't have to do that.", 
+         "Alright, no worries. What else is on your mind?"
+     ]
+    }
+]}
